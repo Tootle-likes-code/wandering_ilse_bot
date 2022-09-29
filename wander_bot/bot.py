@@ -3,7 +3,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from wander_bot.ShutUpCog import ShutUpCog
+from wander_bot.shut_up_cog import ShutUpCog
 
 
 class WanderingBot(commands.Bot):
