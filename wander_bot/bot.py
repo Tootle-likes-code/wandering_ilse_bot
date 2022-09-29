@@ -3,6 +3,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
+from wander_bot.dice_roller_cog import DiceRollerCog
 from wander_bot.shut_up_cog import ShutUpCog
 
 
@@ -17,6 +18,7 @@ class WanderingBot(commands.Bot):
 
     async def _add_cogs(self, default_shut_up_id):
         await self.add_cog(ShutUpCog(self, default_shut_up_id))
+        await self.add_cog(DiceRollerCog())
 
     async def on_ready(self):
         print(f"{self.user} has connected to Discord!!")
