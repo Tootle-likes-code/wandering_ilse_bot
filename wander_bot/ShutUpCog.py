@@ -25,7 +25,7 @@ class ShutUpCog(commands.Cog):
 
     async def _validate_member(self, ctx: Context, member: str) -> User | Member:
         if member is not None:
-            return discord.utils.get(ctx.guild.members, username="member")
+            return discord.utils.get(ctx.guild.members, name=member)
         elif self._default_shut_up_id is not None:
             return await self.bot.fetch_user(self._default_shut_up_id)
 
