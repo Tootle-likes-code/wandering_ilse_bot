@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from bot import WanderingBot
+from wander_bot.bot import WanderingBot
 
 
 def run():
