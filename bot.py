@@ -3,13 +3,13 @@ from discord import client
 from discord.ext import commands
 
 
-def run_bot(token: str):
-    intents = discord.Intents.default()
-    intents.message_content = True
-    bot = commands.Bot(command_prefix='!', intents=intents)
+class WanderingBot(commands.Bot):
+    def __init__(self, command_prefix='!', intents=None):
+        if intents is None:
+            intents = discord.Intents.default()
+            intents.message_content = True
 
-    @bot.event
-    async def on_ready():
-        print(f"{bot.user} has connected to Discord!!")
+        super().__init__(command_prefix=command_prefix, intents=intents)
 
-    bot.run(token)
+    async def on_ready(self):
+        print(f"{self.user} has connected to Discord!!")

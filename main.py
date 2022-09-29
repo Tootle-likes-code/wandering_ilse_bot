@@ -1,15 +1,15 @@
 import os
 
 from dotenv import load_dotenv
-
-import bot
+from bot import WanderingBot
 
 
 def run():
     load_dotenv()
     token = os.getenv("BOT_TOKEN")
 
-    bot.run_bot(token)
+    wandering_bot = WanderingBot()
+    wandering_bot.run(token)
 
 
 # Press the green button in the gutter to run the script.
