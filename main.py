@@ -7,8 +7,9 @@ from wander_bot.bot import WanderingBot
 def run():
     load_dotenv()
     token = os.getenv("BOT_TOKEN")
+    default_shut_up_id = int(os.getenv("DEFAULT_SHUT_UP_USER_ID"))
 
-    wandering_bot = WanderingBot()
+    wandering_bot = WanderingBot(default_shut_up_id=default_shut_up_id)
     wandering_bot.run(token)
 
 
