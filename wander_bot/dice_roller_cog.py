@@ -1,5 +1,5 @@
 from discord.ext import commands
-from discord.ext.commands import BadArgument
+from discord.ext.commands import BadArgument, MissingRequiredArgument
 
 
 class DiceRollerCog(commands.Cog):
@@ -7,7 +7,7 @@ class DiceRollerCog(commands.Cog):
     async def roll(self, ctx, die_function: str):
         print(die_function)
 
-    @roll.error()
-    async def roll(self, ctx, error):
-        if isinstance(error, BadArgument):
-            await ctx.send(f"You need to give a valid dice string.  Come on.")
+    @roll.error
+    async def roll_error(self, ctx, error):
+        if isinstance(error, MissingRequiredArgument):
+            await ctx.send("You need to give a dice string.  Come on.")
