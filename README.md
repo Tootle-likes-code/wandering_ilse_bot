@@ -3,7 +3,7 @@ Discord Bot for Wandering Ilse server
 
 # Commands
 
-## shutup
+## `shutup`
 
 Simply put in a name and the bot will help you tell the person off.  Double whammy.
 
