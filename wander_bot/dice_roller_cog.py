@@ -1,7 +1,17 @@
+from typing import Protocol
+
 import pydice.dice_string_interpreter
 from discord.ext import commands
 from discord.ext.commands import MissingRequiredArgument, Context
-from pydice.roll_result import RollResult
+
+
+class RollResult(Protocol):
+    def result(self) -> int:
+        ...
+
+    @property
+    def die_rolls(self) -> list[int]:
+        ...
 
 
 class DiceRollerCog(commands.Cog):
@@ -10,7 +20,7 @@ class DiceRollerCog(commands.Cog):
         result: RollResult = pydice.dice_string_interpreter.interpret(dice_string)
 
         if result is None:
-            await ctx.send(f"<@{ctx.author.id}>, your dice string doesn't work.  You should check out: " 
+            await ctx.send(f"<@{ctx.author.id}>, your dice string doesn't work.  You should check out: "
                            f"https://github.com/Tootle-likes-code/pydice/blob/main/README.md")
         else:
             message = f"<@{ctx.author.id}> rolled {dice_string}.\n" \

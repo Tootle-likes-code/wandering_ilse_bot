@@ -1,6 +1,7 @@
 import asyncio
 
 import discord
+from discord import Guild
 from discord.ext import commands
 
 from wander_bot.dice_roller_cog import DiceRollerCog
@@ -22,3 +23,12 @@ class WanderingBot(commands.Bot):
 
     async def on_ready(self):
         print(f"{self.user} has connected to Discord!!")
+        print(f"{self.user} is on:")
+        for guild in self.guilds:
+            print(guild.name, f"({guild.id})")
+
+    async def on_guild_join(self, guild: Guild):
+        print(f"{self.user} just joined {guild.name} ({guild.id})")
+
+    async def on_guild_leave(self, guild: Guild):
+        print(f"{self.user} just left {guild.name} ({guild.id})")
