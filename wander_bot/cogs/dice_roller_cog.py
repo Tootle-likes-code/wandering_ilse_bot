@@ -16,7 +16,7 @@ class RollResult(Protocol):
 
 class DiceRollerCog(commands.Cog):
     @commands.command(name="roll", aliases=["r"])
-    async def roll(self, ctx: Context, dice_string: str):
+    async def roll(self, ctx: Context, *, dice_string: str):
         result: RollResult = pydice.dice_string_interpreter.interpret(dice_string)
 
         if result is None:
