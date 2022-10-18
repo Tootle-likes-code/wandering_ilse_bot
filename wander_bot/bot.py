@@ -4,8 +4,8 @@ import discord
 from discord import Guild
 from discord.ext import commands
 
-from wander_bot.dice_roller_cog import DiceRollerCog
-from wander_bot.shut_up_cog import ShutUpCog
+from wander_bot.cogs.dice_roller_cog import DiceRollerCog
+from wander_bot.cogs.shut_up_cog import ShutUpCog
 
 
 class WanderingBot(commands.Bot):
