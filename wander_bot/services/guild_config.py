@@ -9,6 +9,9 @@ class GuildConfig:
     def add_channel(self, channel_id: int) -> None:
         self.watched_channels.add(channel_id)
 
+    def remove_channel(self, channel_id: int) -> None:
+        self.watched_channels.discard(channel_id)
+
 
 def create_guild_config(guild_id: int, channel_id: int) -> GuildConfig:
     return GuildConfig(guild_id, {channel_id})
