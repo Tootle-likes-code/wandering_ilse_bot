@@ -1,5 +1,5 @@
 from discord.app_commands import commands
-from discord.ext.commands import Context, MissingRequiredArgument
+from discord.ext.commands import Context
 
 from wander_bot.services.merge_messages_service import MergeMessagesService
 
