@@ -33,7 +33,10 @@ class MergeMessagesService:
 
         self.guild_configs[guild_id].add_channel(channel_id)
 
-    def stop_watching_channel(self, guild_id: int, channel_id: int):
+    def stop_watching_channel(self, guild_id: int, channel_id: int, author: Member, owner_id: int):
+        if author.id != owner_id:
+            raise InappropriateRoleError()
+
         _validate_args(guild_id, channel_id)
 
         try:

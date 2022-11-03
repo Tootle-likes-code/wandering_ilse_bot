@@ -12,7 +12,7 @@ class MergeMessagesServiceTests(unittest.TestCase):
         self.default_watched_channels = {123: guild_config.create_guild_config(123, 456)}
         self.test_owner_id = 123
         self.default_author = MagicMock()
-        type(self.default_author).id = PropertyMock(return_value = self.test_owner_id)
+        type(self.default_author).id = PropertyMock(return_value=self.test_owner_id)
 
 
 class WatchChannelTests(MergeMessagesServiceTests):
@@ -87,18 +87,17 @@ class WatchChannelTests(MergeMessagesServiceTests):
         with self.assertRaises(InappropriateRoleError) as e:
             test_service.watch_channel(123, 456, mock_member, self.test_owner_id)
 
-        
-        
+
 class StopWatchingChannelTests(MergeMessagesServiceTests):
     def test_valid_guild_id_and_channel_id_removes_channel(self):
         # Arrange
         expected_results = {123: GuildConfig(123)}
         test_service = MergeMessagesService()
         test_service.guild_configs = self.default_watched_channels
-        
+
         # Act
-        test_service.stop_watching_channel(123, 456)
-        
+        test_service.stop_watching_channel(123, 456, self.default_author, self.test_owner_id)
+
         # Assert
         self.assertDictEqual(expected_results, test_service.guild_configs)
 
@@ -109,7 +108,7 @@ class StopWatchingChannelTests(MergeMessagesServiceTests):
         test_service.guild_configs = self.default_watched_channels
 
         # Act
-        test_service.stop_watching_channel(123, 789)
+        test_service.stop_watching_channel(123, 789, self.default_author, self.test_owner_id)
 
         # Assert
         self.assertDictEqual(expected_result, test_service.guild_configs)
@@ -123,8 +122,7 @@ class StopWatchingChannelTests(MergeMessagesServiceTests):
         # Assert
         with self.assertRaises(KeyError) as ex:
             # Act
-            test_service.stop_watching_channel(456, 456)
-
+            test_service.stop_watching_channel(456, 456, self.default_author, self.test_owner_id)
 
         # Assert
         self.assertEqual(expected_message, ex.exception.args[0])
@@ -137,7 +135,7 @@ class StopWatchingChannelTests(MergeMessagesServiceTests):
         # Assert
         with self.assertRaises(TypeError) as ex:
             # Act
-            test_service.stop_watching_channel("hello", 456)
+            test_service.stop_watching_channel("hello", 456, self.default_author, self.test_owner_id)
 
         # Assert
         self.assertEqual(expected_message, ex.exception.args[0])
@@ -150,12 +148,20 @@ class StopWatchingChannelTests(MergeMessagesServiceTests):
         # Assert
         with self.assertRaises(TypeError) as ex:
             # Act
-            test_service.stop_watching_channel(123, "world")
+            test_service.stop_watching_channel(123, "world", self.default_author, self.test_owner_id)
 
         # Assert
         self.assertEqual(expected_message, ex.exception.args[0])
 
+    def test_author_is_not_owner_returns_inappropriate_role_exception(self):
+        # Arrange
+        mock_member = MagicMock()
+        mock_member.id.return_value = -1
+        test_service = MergeMessagesService()
 
+        # Act
+        with self.assertRaises(InappropriateRoleError) as e:
+            test_service.stop_watching_channel(123, 456, mock_member, self.test_owner_id)
 
 
 if __name__ == '__main__':
