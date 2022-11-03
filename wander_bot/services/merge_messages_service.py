@@ -1,3 +1,6 @@
+from discord import Member
+
+from tests.services.custom_errors.inappropriate_role_error import InappropriateRoleError
 from wander_bot.services import guild_config
 from wander_bot.services.guild_config import GuildConfig
 
@@ -18,7 +21,10 @@ class MergeMessagesService:
     def _load_watched_channels(self):
         pass
 
-    def watch_channel(self, guild_id: int, channel_id: int):
+    def watch_channel(self, guild_id: int, channel_id: int, author: Member, owner_id: int):
+        if author.id != owner_id:
+            raise InappropriateRoleError()
+
         _validate_args(guild_id, channel_id)
 
         if guild_id not in self.guild_configs:
