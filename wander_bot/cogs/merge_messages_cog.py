@@ -1,4 +1,4 @@
-from discord.app_commands import commands
+from discord.ext import commands
 from discord.ext.commands import Context
 
 from wander_bot.services.merge_messages_service import MergeMessagesService
@@ -12,7 +12,7 @@ class MergeMessagesCog(commands.Cog):
     async def watch_channel(self, ctx: Context):
         self._service.watch_channel(ctx.guild.id, ctx.channel.id)
 
-        await ctx.send(f"Added {ctx.channel.name} to the watch list.")
+        await ctx.send(f"Added channel '{ctx.channel.name}' to the watch list.")
 
     @watch_channel.error
     async def watch_channel_error(self, ctx: Context, error: Exception):
