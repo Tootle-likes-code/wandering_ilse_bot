@@ -13,6 +13,7 @@ def _validate_args(guild_id: int, channel_id: int):
     if not isinstance(channel_id, int):
         raise TypeError("Channel ID must be a number.")
 
+
 class MergeMessagesService:
     def __init__(self):
         self.guild_configs: dict[int, GuildConfig] = {}
@@ -21,13 +22,18 @@ class MergeMessagesService:
     def _load_watched_channels(self):
         pass
 
-    def _validate_user(self, author: Member, owner_id):
+    def _validate_watch_user(self, author: Member, owner_id: int, guild_id: int):
         if author.id != owner_id:
-            raise InappropriateRoleError()
+            if guild_id not in self.guild_configs:
+                raise InappropriateRoleError()
+
+            role_is_in_config = set(author.roles) & set(self.guild_configs[guild_id].watch_roles)
+            if not role_is_in_config:
+                raise InappropriateRoleError()
 
     def watch_channel(self, guild_id: int, channel_id: int, author: Member, owner_id: int):
-        self._validate_user(author, owner_id)
         _validate_args(guild_id, channel_id)
+        self._validate_watch_user(author, owner_id, guild_id)
 
         if guild_id not in self.guild_configs:
             self.guild_configs[guild_id] = guild_config.create_guild_config(guild_id, channel_id)
@@ -36,13 +42,13 @@ class MergeMessagesService:
         self.guild_configs[guild_id].add_channel(channel_id)
 
     def stop_watching_channel(self, guild_id: int, channel_id: int, author: Member, owner_id: int):
-        self._validate_user(author, owner_id)
         _validate_args(guild_id, channel_id)
-
-        try:
-            self.guild_configs[guild_id].remove_channel(channel_id)
-        except KeyError:
+        if guild_id not in self.guild_configs:
             raise KeyError(f"No Guild with ID '{guild_id}' found.")
+
+        self._validate_watch_user(author, owner_id, guild_id)
+
+        self.guild_configs[guild_id].remove_channel(channel_id)
 
     def add_watch_role(self, guild: Guild, role: Role, author: Member):
         if not isinstance(guild, Guild):
@@ -51,6 +57,6 @@ class MergeMessagesService:
         if role not in guild.roles:
             raise NoSuchRoleError(guild, role)
 
-        self._validate_user(author, guild.owner.id)
+        self._validate_watch_user(author, guild.owner.id, guild.id)
 
         self.guild_configs[guild.id].add_watch_role(role)
