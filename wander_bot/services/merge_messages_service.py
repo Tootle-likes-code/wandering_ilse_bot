@@ -1,7 +1,7 @@
 from discord import Member, Guild, Role
 
-from tests.services.custom_errors.inappropriate_role_error import InappropriateRoleError
-from tests.services.custom_errors.no_such_role_error import NoSuchRoleError
+from wander_bot.cogs.custom_errors.inappropriate_role_error import InappropriateRoleError
+from wander_bot.cogs.custom_errors.no_such_role_error import NoSuchRoleError
 from wander_bot.services import guild_config
 from wander_bot.services.guild_config import GuildConfig
 
