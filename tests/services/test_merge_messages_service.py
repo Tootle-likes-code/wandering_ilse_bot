@@ -1,7 +1,10 @@
 import unittest
 from unittest.mock import MagicMock, PropertyMock
 
+from discord import Guild
+
 from tests.services.custom_errors.inappropriate_role_error import InappropriateRoleError
+from tests.services.custom_errors.no_such_role_error import NoSuchRoleError
 from wander_bot.services import guild_config
 from wander_bot.services.guild_config import GuildConfig
 from wander_bot.services.merge_messages_service import MergeMessagesService
@@ -9,10 +12,26 @@ from wander_bot.services.merge_messages_service import MergeMessagesService
 
 class MergeMessagesServiceTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.default_watched_channels = {123: guild_config.create_guild_config(123, 456)}
-        self.test_owner_id = 123
+        self.default_guild_id = 123
+        self.default_channel_id = 456
+        self.default_watched_channels = {
+            self.default_guild_id: guild_config.create_guild_config(self.default_guild_id, 456)
+        }
+        self.test_owner_id = 12345
         self.default_author = MagicMock()
         type(self.default_author).id = PropertyMock(return_value=self.test_owner_id)
+        self.owner_mock = MagicMock()
+        type(self.owner_mock).id = PropertyMock(return_value=self.test_owner_id)
+
+        self.test_role = MagicMock()
+        type(self.test_role).name = PropertyMock(return_value="mocked role")
+
+        self.test_guild = MagicMock(spec=Guild)
+        type(self.test_guild).id = PropertyMock(return_value=self.default_guild_id)
+        type(self.test_guild).owner = PropertyMock(return_value=self.owner_mock)
+        type(self.test_guild).roles = PropertyMock(return_value=[self.test_role])
+        type(self.test_guild).name = PropertyMock(return_value="mocked guild")
+
 
 
 class WatchChannelTests(MergeMessagesServiceTests):
@@ -153,7 +172,7 @@ class StopWatchingChannelTests(MergeMessagesServiceTests):
         # Assert
         self.assertEqual(expected_message, ex.exception.args[0])
 
-    def test_author_is_not_owner_returns_inappropriate_role_exception(self):
+    def test_author_is_not_owner_throw_inappropriate_role_exception(self):
         # Arrange
         mock_member = MagicMock()
         mock_member.id.return_value = -1
@@ -162,6 +181,87 @@ class StopWatchingChannelTests(MergeMessagesServiceTests):
         # Act
         with self.assertRaises(InappropriateRoleError) as e:
             test_service.stop_watching_channel(123, 456, mock_member, self.test_owner_id)
+
+
+class AddWatchRole(MergeMessagesServiceTests):
+    def setUp(self) -> None:
+        super().setUp()
+        self.test_service = MergeMessagesService()
+        self.test_service.guild_configs = self.default_watched_channels
+
+    def test_valid_guild_from_owner_adds_role(self):
+        # Arrange
+        expected_result = {self.test_role}
+
+        # Act
+        self.test_service.add_watch_role(self.test_guild, self.test_role, self.default_author)
+
+        # Assert
+        self.assertEqual(expected_result, self.test_service.guild_configs[self.test_guild.id].watch_roles)
+
+    def test_none_guild_throws_type_error_with_correct_message(self):
+        # Arrange
+        expected_message = "guild was not of the Guild type."
+        test_service = MergeMessagesService()
+
+        # Assert
+        with self.assertRaises(TypeError) as ex:
+            # Act
+            test_service.add_watch_role(123, self.test_role, self.default_author)
+
+        message = ex.exception.args[0]
+
+        # Assert
+        self.assertEqual(expected_message, message)
+
+    def test_guild_not_of_guild_type_raises_type_error(self):
+        # Arrange
+        expected_message = "guild was not of the Guild type."
+        test_service = MergeMessagesService()
+
+        # Assert
+        with self.assertRaises(TypeError) as ex:
+            # Act
+            test_service.add_watch_role(123, self.test_role, self.default_author)
+
+        message = ex.exception.args[0]
+
+        # Assert
+        self.assertEqual(expected_message, message)
+
+    def test_valid_guild_added_by_invalid_user_raises_inappropriate_role_exception(self):
+        # Arrange
+        type(self.owner_mock).id = PropertyMock(987)
+
+        # Act
+        with self.assertRaises(InappropriateRoleError):
+            self.test_service.add_watch_role(self.test_guild, self.test_role, self.default_author)
+
+    def test_add_valid_guild_and_role_again(self):
+        # Arrange
+        expected_result = {self.test_role}
+        self.test_service.guild_configs[self.default_guild_id].watch_roles = {self.test_role}
+
+        # Act
+        self.test_service.add_watch_role(self.test_guild, self.test_role, self.default_author)
+
+        # Assert
+        self.assertEqual(expected_result, self.test_service.guild_configs[self.test_guild.id].watch_roles)
+        
+    def test_guild_does_not_contain_requested_role_raises_NoSuchRoleError(self):
+        # Arrange
+        expected_message = "The guild 'mocked guild' does not have the role 'mocked role'."
+        type(self.test_guild).roles = PropertyMock(return_value=[])
+        
+        # Assert
+        with self.assertRaises(NoSuchRoleError) as ex:
+            # Act
+            self.test_service.add_watch_role(self.test_guild, self.test_role, self.default_author)
+
+        message = ex.exception.message
+        
+        # Assert
+        self.assertEqual(expected_message, message)
 
 
 if __name__ == '__main__':
