@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, PropertyMock
 
 from discord import Guild
 
-from wander_bot.cogs.custom_errors.inappropriate_role_error import InappropriateRoleError
-from wander_bot.cogs.custom_errors.no_such_role_error import NoSuchRoleError
+from wander_bot.services.custom_errors import InappropriateRoleError
+from wander_bot.services.custom_errors import NoSuchRoleError
 from wander_bot.services import guild_config
 from wander_bot.services.merge_messages_service import MergeMessagesService
 
