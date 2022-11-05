@@ -60,3 +60,11 @@ class MergeMessagesService:
         self._validate_watch_user(author, guild.owner.id, guild.id)
 
         self.guild_configs[guild.id].add_watch_role(role)
+
+    def remove_watch_role(self, guild: Guild, role: Role, author: Member):
+        if not isinstance(guild, Guild):
+            raise TypeError("guild was not of the Guild type.")
+
+        self._validate_watch_user(author, guild.owner.id, guild.id)
+
+        self.guild_configs[guild.id].remove_watch_role(role)

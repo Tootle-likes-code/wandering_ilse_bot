@@ -26,7 +26,7 @@ class MergeMessagesServiceTests(unittest.TestCase):
         }
         self.test_owner_id = 12345
         self.default_author = MagicMock()
-        type(self.default_author).id = PropertyMock(return_value=self.test_owner_id)
+        type(self.default_author).id = PropertyMock(return_value=4567)
         type(self.default_author).roles = PropertyMock(return_value=[self.test_role])
 
         self.owner_mock = MagicMock()
@@ -53,7 +53,7 @@ class WatchChannelTests(MergeMessagesServiceTests):
         test_service = MergeMessagesService()
 
         # Act
-        test_service.watch_channel(123, 456, self.default_author, self.test_owner_id)
+        test_service.watch_channel(123, 456, self.owner_mock, self.test_owner_id)
 
         # Assert
         self.assertSetEqual(expected_result, test_service.guild_configs[123].watched_channels)
@@ -218,7 +218,7 @@ class AddWatchRole(MergeMessagesServiceTests):
         # Assert
         with self.assertRaises(TypeError) as ex:
             # Act
-            test_service.add_watch_role(123, self.test_role, self.default_author)
+            test_service.add_watch_role(None, self.test_role, self.default_author)
 
         message = ex.exception.args[0]
 
@@ -287,6 +287,56 @@ class AddWatchRole(MergeMessagesServiceTests):
 
         # Assert
         self.assertEqual(expected_result, self.test_service.guild_configs[self.default_guild_id].watch_roles)
+
+
+class RemoveWatchRoleTests(MergeMessagesServiceTests):
+    def test_valid_guild_valid_role_from_owner_removes_role(self):
+        # Arrange
+        expected_results = set()
+
+        # Act
+        self.test_service.remove_watch_role(self.test_guild, self.test_role, self.default_author)
+
+        # Assert
+        self.assertEqual(expected_results, self.test_service.guild_configs[self.default_guild_id].watch_roles)
+
+    def test_none_guild_throws_type_error_with_correct_message(self):
+        # Arrange
+        expected_message = "guild was not of the Guild type."
+        test_service = MergeMessagesService()
+
+        # Assert
+        with self.assertRaises(TypeError) as ex:
+            # Act
+            test_service.remove_watch_role(None, self.test_role, self.default_author)
+
+        message = ex.exception.args[0]
+
+        # Assert
+        self.assertEqual(expected_message, message)
+
+    def test_guild_not_of_guild_type_raises_type_error(self):
+        # Arrange
+        expected_message = "guild was not of the Guild type."
+        test_service = MergeMessagesService()
+
+        # Assert
+        with self.assertRaises(TypeError) as ex:
+            # Act
+            test_service.remove_watch_role(123, self.test_role, self.default_author)
+
+        message = ex.exception.args[0]
+
+        # Assert
+        self.assertEqual(expected_message, message)
+
+    def test_valid_guild_removed_by_invalid_user_raises_inappropriate_role_exception(self):
+        # Arrange
+        type(self.owner_mock).id = PropertyMock(987)
+
+        # Act
+        with self.assertRaises(InappropriateRoleError):
+            self.test_service.remove_watch_role(self.test_guild, self.test_role, self.not_authorised_author)
 
 
 if __name__ == '__main__':
