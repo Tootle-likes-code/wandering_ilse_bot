@@ -36,18 +36,3 @@ class MergeMessagesService:
             raise KeyError(f"No Guild with ID '{guild_id}' found.")
 
         self.guild_configs[guild_id].remove_channel(channel_id)
-
-    def add_watch_role(self, guild: Guild, role: Role):
-        if not isinstance(guild, Guild):
-            raise TypeError("guild was not of the Guild type.")
-
-        if role not in guild.roles:
-            raise NoSuchRoleError(guild, role)
-
-        self.guild_configs[guild.id].add_watch_role(role)
-
-    def remove_watch_role(self, guild: Guild, role: Role):
-        if not isinstance(guild, Guild):
-            raise TypeError("guild was not of the Guild type.")
-
-        self.guild_configs[guild.id].remove_watch_role(role)
