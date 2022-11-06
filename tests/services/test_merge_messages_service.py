@@ -82,16 +82,6 @@ class WatchChannelTests(MergeMessagesServiceTests):
         # Assert
         self.assertEqual(expected_message, ex.exception.args[0])
 
-    def test_author_is_not_owner_but_is_valid_user_role_adds_channel(self):
-        # Arrange
-        expected_result = {456, 789}
-
-        # Act
-        self.test_service.watch_channel(self.default_guild_id, 789)
-
-        # Assert
-        self.assertEqual(expected_result, self.test_service.guild_configs[self.default_guild_id].watched_channels)
-
 
 class StopWatchingChannelTests(MergeMessagesServiceTests):
     def test_valid_guild_id_and_channel_id_removes_channel(self):
