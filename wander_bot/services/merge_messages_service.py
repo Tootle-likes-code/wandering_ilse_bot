@@ -34,6 +34,12 @@ class MergeMessagesService:
 
         self.guild_configs[guild_id].remove_channel(channel_id)
 
+    def is_channel_watched(self, guild_id: int, channel_id: int) -> bool:
+        if guild_id in self.guild_configs:
+            return channel_id in self.guild_configs[guild_id].watched_channels
+
+        return False
+
     def set_output_channel(self, guild_id: int, channel_id: int):
         _validate_args(guild_id, channel_id)
 

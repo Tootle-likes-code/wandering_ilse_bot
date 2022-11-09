@@ -83,6 +83,29 @@ class WatchChannelTests(MergeMessagesServiceTests):
         self.assertEqual(expected_message, ex.exception.args[0])
 
 
+class IsChannelWatchedTests(MergeMessagesServiceTests):
+    def test_in_guild_and_channel_returns_true(self):
+        # Act
+        result = self.test_service.is_channel_watched(self.default_guild_id, self.default_channel_id)
+
+        # Assert
+        self.assertTrue(result)
+
+    def test_no_guild_mapped_returns_false(self):
+        # Act
+        result = self.test_service.is_channel_watched(987, self.default_channel_id)
+
+        # Assert
+        self.assertFalse(result)
+
+    def test_channel_not_mapped(self):
+        # Act
+        result = self.test_service.is_channel_watched(self.default_guild_id, 726318946)
+
+        # Assert
+        self.assertFalse(result)
+
+
 class StopWatchingChannelTests(MergeMessagesServiceTests):
     def test_valid_guild_id_and_channel_id_removes_channel(self):
         # Arrange
