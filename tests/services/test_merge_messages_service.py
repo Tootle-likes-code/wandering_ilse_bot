@@ -152,5 +152,52 @@ class StopWatchingChannelTests(MergeMessagesServiceTests):
         self.assertEqual(expected_result, self.test_service.guild_configs[self.default_guild_id].watched_channels)
 
 
+class SetOutputTests(MergeMessagesServiceTests):
+    def test_valid_guild_and_channel_sets_output(self):
+        # Arrange
+        expected_result = 789
+
+        # Act
+        self.test_service.set_output_channel(self.default_guild_id, 789)
+
+        # Assert
+        self.assertEqual(expected_result, self.test_service.guild_configs[self.default_guild_id].output_channel_id)
+
+    def test_new_guild_and_valid_channel_adds_guild_sets_output(self):
+        # Arrange
+        new_guild = 867
+
+        # Act
+        self.test_service.set_output_channel(new_guild, 789)
+
+        # Assert
+        self.assertTrue(new_guild in self.test_service.guild_configs)
+
+    def test_guild_id_not_a_number_raises_type_error(self):
+        # Arrange
+        expected_message = "Guild ID must be a number."
+
+        # Assert
+        with self.assertRaises(TypeError) as ex:
+            # Act
+            self.test_service.set_output_channel("hello", 789)
+
+        # Assert
+        self.assertEqual(expected_message, ex.exception.args[0])
+
+    def test_invalid_number_channel_throws_type_error(self):
+        # Arrange
+        expected_message = "Channel ID must be a number."
+        test_service = MergeMessagesService()
+
+        # Assert
+        with self.assertRaises(TypeError) as ex:
+            # Act
+            test_service.set_output_channel(123, "world")
+
+        # Assert
+        self.assertEqual(expected_message, ex.exception.args[0])
+
+
 if __name__ == '__main__':
     unittest.main()
