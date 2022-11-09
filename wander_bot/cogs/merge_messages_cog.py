@@ -54,7 +54,7 @@ class MergeMessagesCog(commands.Cog):
         if not self._authenticate_request(ctx):
             await ctx.send("You don't have permissions to find that out.")
 
-        output_channel = self._merge_service.get_output_channel()
+        output_channel = self._merge_service.get_output_channel(ctx.guild.id)
         await ctx.send(f"Current output channel is: {ctx.guild.get_channel(output_channel).name}")
 
     @get_output_channel.error
