@@ -199,5 +199,22 @@ class SetOutputTests(MergeMessagesServiceTests):
         self.assertEqual(expected_message, ex.exception.args[0])
 
 
+class GetOutputChannelTests(MergeMessagesServiceTests):
+    def test_returns_output_channel_None_channel(self):
+        # Assert
+        self.assertIsNone(self.test_service.get_output_channel(self.default_guild_id))
+
+    def test_returns_output_channel_number_channel(self):
+        # Arrange
+        expected_result = 123
+        self.test_service.guild_configs[self.default_guild_id].output_channel_id = 123
+
+        # Act
+        result = self.test_service.get_output_channel(self.default_guild_id)
+
+        # Assert
+        self.assertEqual(expected_result, result)
+
+
 if __name__ == '__main__':
     unittest.main()

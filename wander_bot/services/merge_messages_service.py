@@ -42,3 +42,6 @@ class MergeMessagesService:
             return
 
         self.guild_configs[guild_id].output_channel_id = channel_id
+
+    def get_output_channel(self, guild_id: int) -> int | None:
+        return self.guild_configs[guild_id].output_channel_id
