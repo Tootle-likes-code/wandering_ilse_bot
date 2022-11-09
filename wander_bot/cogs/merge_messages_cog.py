@@ -48,3 +48,25 @@ class MergeMessagesCog(commands.Cog):
 
         if isinstance(error, KeyError):
             await ctx.send(f"Did not have this guild registered to watch anything.")
+
+    @commands.command(name="get-output")
+    async def get_output_channel(self, ctx: Context):
+        if not self._authenticate_request(ctx):
+            await ctx.send("You don't have permissions to find that out.")
+
+        output_channel = self._merge_service.get_output_channel()
+        await ctx.send(f"Current output channel is: {ctx.guild.get_channel(output_channel).name}")
+
+    @get_output_channel.error
+    async def get_output_channel_error(self, ctx: Context, error: Exception):
+        if isinstance(error, KeyError):
+            await ctx.send(f"Did not have this guild registered to watch anything.")
+
+    @commands.command(name="set-output")
+    async def set_output_channel(self, ctx: Context):
+        if not self._authenticate_request(ctx):
+            await ctx.send("You do not have permissions to set a channel as the updates channel.")
+
+        self._merge_service.set_output_channel(ctx.guild.id, ctx.channel.id)
+        await ctx.send(f"Set '{ctx.channel.name}' as the updates channel.")
+
