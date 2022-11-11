@@ -1,3 +1,5 @@
+import discord
+from discord import Message
 from discord.ext import commands
 from discord.ext.commands import Context
 
@@ -6,15 +8,20 @@ from wander_bot.services.merge_messages_service import MergeMessagesService
 
 
 class MergeMessagesCog(commands.Cog):
-    def __init__(self, merge_service: MergeMessagesService, authentication_services: dict[int, AuthenticationService]):
+    def __init__(self, bot: commands.Bot, merge_service: MergeMessagesService,
+                 authentication_services: dict[int, AuthenticationService] = None):
+        self.bot = bot
         self._merge_service = merge_service
-        self._authentication_services = authentication_services
+        if authentication_services is None:
+            self._authentication_services = {}
+        else:
+            self._authentication_services = authentication_services
 
     def _authenticate_request(self, ctx: Context) -> bool:
         authentication_service = self._authentication_services.get(ctx.guild.id, None)
         if not authentication_service:
             self._authentication_services[ctx.guild.id] = AuthenticationService(ctx.guild)
-            authentication_service = [ctx.guild.id]
+            authentication_service = self._authentication_services.get(ctx.guild.id)
 
         return authentication_service.is_valid_member(ctx.author)
 
@@ -62,7 +69,7 @@ class MergeMessagesCog(commands.Cog):
         if isinstance(error, KeyError):
             await ctx.send(f"Did not have this guild registered to watch anything.")
 
-    @commands.command(name="set-output")
+    @commands.command(name="set-output", aliases=['output'])
     async def set_output_channel(self, ctx: Context):
         if not self._authenticate_request(ctx):
             await ctx.send("You do not have permissions to set a channel as the updates channel.")
@@ -70,3 +77,26 @@ class MergeMessagesCog(commands.Cog):
         self._merge_service.set_output_channel(ctx.guild.id, ctx.channel.id)
         await ctx.send(f"Set '{ctx.channel.name}' as the updates channel.")
 
+    @commands.Cog.listener()
+    async def on_message(self, message: Message):
+        if message.author == self.bot.user:
+            return
+
+        context: commands.Context = await self.bot.get_context(message)
+        if context.command is None:
+            await self._copy_appropriate_message(message)
+
+    async def _copy_appropriate_message(self, message):
+        if not self._merge_service.is_channel_watched(message.guild.id, message.channel.id):
+            return
+
+        output_channel_id = self.get_output_channel(message.guild.id)
+
+        if output_channel_id is None:
+            return
+
+        output_channel = discord.utils.get(
+            message.guild.channels,
+            id=self._merge_service.get_output_channel(message.guild.id)
+        )
+        await output_channel.send(message.content)
