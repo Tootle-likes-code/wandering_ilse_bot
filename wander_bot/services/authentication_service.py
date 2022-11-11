@@ -5,7 +5,7 @@ from wander_bot.services.custom_errors.no_such_role_error import NoSuchRoleError
 
 
 class AuthenticationService:
-    def __init__(self, guild: Guild, accepted_roles: set() = None):
+    def __init__(self, guild: Guild, accepted_roles: set[Role] = None):
         self.guild = guild
 
         if accepted_roles is None:
